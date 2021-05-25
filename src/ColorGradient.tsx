@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 
-import { makeRgb } from "./ColorDisplay";
+import { makeRGB } from "./rgb";
 import styled from "styled-components";
 
 const colors: string[][] = [];
@@ -9,7 +9,7 @@ for (let red = 0; red < 16; red += 4) {
   colors.push([]);
   for (let green = 0; green < 16; green += 4) {
     for (let blue = 0; blue < 16; blue += 4) {
-      colors[red >> 2].push(makeRgb({ red, green, blue }));
+      colors[red >> 2].push(makeRGB({ red, green, blue }));
     }
   }
 }
