@@ -1,8 +1,7 @@
-import { useState } from "react";
 import styled from "styled-components";
 import { BlackWhiteText } from "./BlackWhiteText";
-import { Counter } from "./Counter";
-import { makeRGB, RGB } from "./rgb";
+import { ColorCounter } from "./ColorCounter";
+import { useRGB, rgbHookToHex } from "./useRGB";
 
 const StyledBodyCounter = styled.div`
   margin: 2rem;
@@ -14,48 +13,16 @@ const StyledBodyCounter = styled.div`
   }
 `;
 
-const bodyBackground: RGB = {
-  red: 4,
-  green: 4,
-  blue: 4,
-};
-
-const setBodyBackground = () => {
-  const rgb = makeRGB(bodyBackground);
-  document.body.style.backgroundColor = rgb;
-  return rgb;
-};
-
 export const BodyCounter = () => {
-  const [rgb, setRGB] = useState(setBodyBackground());
+  const rgb = useRGB({ red: 4, green: 4, blue: 4 });
 
-  const increment = () => {
-    if (bodyBackground.red === 15) return;
-    // @ts-ignore
-    ++bodyBackground.red;
-    // @ts-ignore
-    ++bodyBackground.green;
-    // @ts-ignore
-    ++bodyBackground.blue;
-    setRGB(setBodyBackground());
-  };
-
-  const decrement = () => {
-    if (bodyBackground.red === 0) return;
-    // @ts-ignore
-    --bodyBackground.red;
-    // @ts-ignore
-    --bodyBackground.green;
-    // @ts-ignore
-    --bodyBackground.blue;
-    setRGB(setBodyBackground());
-  };
+  const hex = (document.body.style.backgroundColor = rgbHookToHex(rgb));
 
   return (
     <StyledBodyCounter>
       <div>
-        <BlackWhiteText>adjust background color {rgb}</BlackWhiteText>
-        <Counter increment={increment} decrement={decrement} />;
+        <BlackWhiteText>adjust background color {hex}</BlackWhiteText>
+        <ColorCounter {...rgb} hide />;
       </div>
     </StyledBodyCounter>
   );

@@ -1,52 +1,63 @@
-import { useMemo } from "react";
-
-import { makeRGB } from "./rgb";
+import { FC, useMemo } from "react";
 import styled from "styled-components";
+import useColorList from "./ColorListContext";
+import { ColorSquare } from "./ColorSquare";
+import { RGBPropsStrict, rgbToHex } from "./useRGB";
 
-const colors: string[][] = [];
-
-for (let red = 0; red < 16; red += 4) {
-  colors.push([]);
-  for (let green = 0; green < 16; green += 4) {
-    for (let blue = 0; blue < 16; blue += 4) {
-      colors[red >> 2].push(makeRGB({ red, green, blue }));
-    }
-  }
-}
-
-const StyledDiv = styled.div`
+const StyledGradient = styled.div`
   display: flex;
   flex-wrap: wrap;
-  .box {
-    display: flex;
-    flex-wrap: wrap;
-    width: calc(50% - 0.5rem);
-    padding: 0.25rem;
+  /* align-items: center; */
+  > * {
+    flex-basis: 12.5%;
   }
-
-  .color {
-    width: 25%;
-    margin: 0;
-    text-align: center;
-    padding: 4rem 0;
-  }
+  min-height: 12rem;
 `;
 
-export const ColorGradient = () => (
-  <StyledDiv>
-    {useMemo(
-      () =>
-        colors.map((boxes, i) => (
-          <div key={i} className="box">
-            {boxes.map((color) => (
-              <div className="color" key={color} style={{ background: color }}>
-                {color}
-              </div>
-            ))}
-          </div>
-        )),
+const createGradient = (red: number, green: number, blue: number) => {
+  const rgb = {
+    red,
+    green,
+    blue,
+  };
 
-      []
-    )}
-  </StyledDiv>
-);
+  while (rgb.red > 0 && rgb.green > 0 && rgb.blue > 0) {
+    --rgb.red;
+    --rgb.green;
+    --rgb.blue;
+  }
+
+  const gradient: string[] = [];
+
+  while (rgb.red < 16 && rgb.green < 16 && rgb.blue < 16) {
+    gradient.push(rgbToHex(rgb));
+    ++rgb.red;
+    ++rgb.green;
+    ++rgb.blue;
+  }
+
+  return gradient;
+};
+
+export const ColorGradient: FC<RGBPropsStrict> = ({ red, green, blue }) => {
+  const [, { addColor }] = useColorList();
+  const gradient = useMemo(
+    () => createGradient(red, green, blue),
+    [red, green, blue]
+  );
+
+  return (
+    <StyledGradient>
+      {gradient.map((rgb, key) => (
+        <ColorSquare
+          key={key}
+          rgb={rgb}
+          padding="0"
+          onClick={() => addColor(rgb)}
+        />
+      ))}
+    </StyledGradient>
+  );
+};
+
+export {};

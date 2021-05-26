@@ -1,51 +1,63 @@
-import { Dispatch, SetStateAction, useCallback, useState } from "react";
-import { ColorDisplay } from "./ColorDisplay";
+import { FC, useMemo } from "react";
+import styled from "styled-components";
 import useColorList from "./ColorListContext";
-import { CounterProps, Counter } from "./Counter";
+import { ColorSquare } from "./ColorSquare";
+import { ColorCounterProps, rgbToHex } from "./useRGB";
 
-// const [increment, decrement] = useMemo(
-//   () => [
-//     () => setCount((count) => (count < 15 ? count + 1 : count)),
+const StyledColorCounter = styled.div`
+  display: flex;
+  justify-content: center;
+`;
 
-//     () => setCount((count) => (count > 0 ? count - 1 : count)),
-//   ],
-//   []
-// );
+const StyledCounter = styled.div`
+  > button {
+    margin-top: 0.5rem;
+    & + button {
+      margin-left: 0.5rem;
+    }
+  }
+`;
 
-type ColorCounterInterface = (
-  init: number
-) => [number, () => void, () => void, Dispatch<SetStateAction<number>>];
-
-export interface ColorCounterProps extends CounterProps {
-  rgb: string;
+interface ColorCounterPropsExtended extends ColorCounterProps {
+  hide?: boolean;
 }
 
-export const useColorCounter: ColorCounterInterface = (init: number = 8) => {
-  const [count, setCount] = useState(init);
-
-  const increment = useCallback(
-    () => setCount((count) => (count < 15 ? count + 1 : count)),
-    []
-  );
-
-  const decrement = useCallback(
-    () => setCount((count) => (count > 0 ? count - 1 : count)),
-    []
-  );
-
-  return [count, increment, decrement, setCount];
-};
-
-export const ColorCounter = ({
-  rgb,
-  increment,
-  decrement,
-}: ColorCounterProps) => {
+export const ColorCounter: FC<ColorCounterPropsExtended> = ({
+  red: [red, incrementRed, decrementRed] = [],
+  green: [green, incrementGreen, decrementGreen] = [],
+  blue: [blue, incrementBlue, decrementBlue] = [],
+  hide = false,
+}) => {
   const [, { addColor }] = useColorList();
+
+  const { rgb, increment, decrement } = useMemo(
+    () => ({
+      rgb: rgbToHex({ red, green, blue }),
+      increment() {
+        if (red === 15 || green === 15 || blue === 15) return;
+        incrementRed && incrementRed();
+        incrementGreen && incrementGreen();
+        incrementBlue && incrementBlue();
+      },
+      decrement() {
+        if (red === 0 || green === 0 || blue === 0) return;
+        decrementRed && decrementRed();
+        decrementGreen && decrementGreen();
+        decrementBlue && decrementBlue();
+      },
+    }),
+    [red, green, blue]
+  );
+
   return (
+    // <StyledColorCounter>
     <div>
-      <ColorDisplay rgb={rgb} onClick={() => addColor(rgb)} />
-      <Counter increment={increment} decrement={decrement} />
+      {hide || <ColorSquare rgb={rgb} onClick={() => addColor(rgb)} />}
+      <StyledCounter>
+        <button onClick={increment}>+</button>
+        <button onClick={decrement}>-</button>
+      </StyledCounter>
     </div>
+    // </StyledColorCounter>
   );
 };

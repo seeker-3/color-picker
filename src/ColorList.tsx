@@ -1,12 +1,12 @@
 import useColorList from "./ColorListContext";
-import { ColorDisplay } from "./ColorDisplay";
+import { ColorSquare } from "./ColorSquare";
 import styled from "styled-components";
 import { BlackWhiteText } from "./BlackWhiteText";
 
 const StyledColorList = styled.div`
-  > * + * {
-    margin-top: 2rem;
-  }
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
 `;
 
 export default function ColorList() {
@@ -17,11 +17,7 @@ export default function ColorList() {
       <BlackWhiteText text="click to remove color" />
       <StyledColorList>
         {list.map((color, i) => (
-          <ColorDisplay
-            key={i}
-            rgb={color}
-            onClick={() => removeColor(color)}
-          />
+          <ColorSquare key={i} rgb={color} onClick={() => removeColor(color)} />
         ))}
       </StyledColorList>
     </div>
